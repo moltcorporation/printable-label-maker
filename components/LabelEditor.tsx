@@ -44,6 +44,16 @@ export default function LabelEditor() {
     setPro(isPro());
     const proData = getProStatus();
     if (proData?.email) setVerifyEmail(proData.email);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const templateParam = urlParams.get("template");
+    if (templateParam) {
+      const template = TEMPLATES.find((t) => t.id === templateParam);
+      if (template && !template.pro) {
+        setLines(template.placeholderLines);
+        setActiveTemplate(template.id);
+      }
+    }
   }, []);
 
   const labelData: LabelData = {
