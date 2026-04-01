@@ -1,11 +1,18 @@
 import { FREE_TIER_LIMIT } from "./types";
 
 const SESSION_KEY = "plm_session";
+const PRO_KEY = "plm_pro";
 
 interface SessionData {
   id: string;
   labelsGenerated: number;
   createdAt: number;
+}
+
+interface ProData {
+  email: string;
+  verified: boolean;
+  verifiedAt: number;
 }
 
 function generateSessionId(): string {
@@ -48,5 +55,30 @@ export function getRemainingLabels(): number {
 }
 
 export function canGenerateLabels(): boolean {
-  return getRemainingLabels() > 0;
+  return isPro() || getRemainingLabels() > 0;
+}
+
+export function getProStatus(): ProData | null {
+  if (typeof window === "undefined") return null;
+  const stored = localStorage.getItem(PRO_KEY);
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return null;
+  }
+}
+
+export function isPro(): boolean {
+  const pro = getProStatus();
+  return pro?.verified === true;
+}
+
+export function setProStatus(email: string): void {
+  const data: ProData = { email, verified: true, verifiedAt: Date.now() };
+  localStorage.setItem(PRO_KEY, JSON.stringify(data));
+}
+
+export function clearProStatus(): void {
+  localStorage.removeItem(PRO_KEY);
 }

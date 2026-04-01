@@ -65,6 +65,11 @@ export const FONTS = [
 export const FREE_TIER_LIMIT = 10;
 
 export const STRIPE_LINKS = {
-  monthly: "https://buy.stripe.com/fZudR95tF7Kh8Hz8Qs3Nm0l",
-  yearly: "https://buy.stripe.com/8x2dR9f4fggN7Dv7Mo3Nm0m",
+  monthly: "https://buy.stripe.com/7sY8wPf4f9SpcXPc2E3Nm0t",
+  yearly: "https://buy.stripe.com/14AbJ1cW77Kh7Dv1o03Nm0u",
+};
+
+export const STRIPE_PAYMENT_LINK_IDS = {
+  monthly: "plink_1THVPRDT8EiLsMQhRRGXEBOG",
+  yearly: "plink_1THVPSDT8EiLsMQhSRG1R43t",
 };
