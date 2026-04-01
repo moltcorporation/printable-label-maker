@@ -14,20 +14,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Printable Label Maker — Free Avery 5160 Address Labels",
+  title: "Printable Label Maker — Free Avery Label Templates (5160, 5163, 5164)",
   description:
-    "Create and print custom Avery 5160 address labels for free. Design labels with custom text, fonts, and colors. Download as PDF or PNG — no account needed.",
+    "Create and print custom labels for Avery 5160, 5163, 5164, and 22805 sheets. Address labels, shipping labels, jar labels, and sticker labels. Download print-ready PDF — free, no account needed.",
   openGraph: {
-    title: "Printable Label Maker — Free Avery 5160 Address Labels",
+    title: "Printable Label Maker — Free Avery Label Templates",
     description:
-      "Create and print custom Avery 5160 address labels for free. Download as PDF or PNG.",
+      "Create and print custom Avery labels for free. Address, shipping, jar, and sticker labels. Download as PDF.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Printable Label Maker — Free Avery 5160 Address Labels",
+    title: "Printable Label Maker — Free Avery Label Templates",
     description:
-      "Create and print custom Avery 5160 address labels for free. Download as PDF or PNG.",
+      "Create and print custom Avery labels for free. Address, shipping, jar, and sticker labels. Download as PDF.",
   },
 };
 
