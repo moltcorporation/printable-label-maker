@@ -15,6 +15,9 @@ import {
   incrementLabelsGenerated,
   getRemainingLabels,
   canGenerateLabels,
+  isPro,
+  setProStatus,
+  getProStatus,
 } from "@/lib/session";
 import { ALL_AVERY_SPECS, AVERY_5160, AverySpec } from "@/lib/avery";
 import AverySheet from "./AverySheet";
@@ -30,9 +33,17 @@ export default function LabelEditor() {
   const [remaining, setRemaining] = useState(FREE_TIER_LIMIT);
   const [activeTemplate, setActiveTemplate] = useState<string>("address");
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [pro, setPro] = useState(false);
+  const [verifyEmail, setVerifyEmail] = useState("");
+  const [verifyMode, setVerifyMode] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [verifyError, setVerifyError] = useState("");
 
   useEffect(() => {
     setRemaining(getRemainingLabels());
+    setPro(isPro());
+    const proData = getProStatus();
+    if (proData?.email) setVerifyEmail(proData.email);
   }, []);
 
   const labelData: LabelData = {
@@ -62,25 +73,50 @@ export default function LabelEditor() {
   }, []);
 
   const applyTemplate = useCallback((template: Template) => {
-    if (template.pro) {
+    if (template.pro && !pro) {
       setShowUpgrade(true);
       return;
     }
     setLines(template.placeholderLines);
     setActiveTemplate(template.id);
-  }, []);
+  }, [pro]);
 
   const selectSheet = useCallback(
     (spec: AverySpec) => {
-      if (spec.pro) {
+      if (spec.pro && !pro) {
         setShowUpgrade(true);
         return;
       }
       setActiveSpec(spec);
       setLabelCount(spec.labelsPerSheet);
     },
-    []
+    [pro]
   );
+
+  const handleVerifyAccess = useCallback(async () => {
+    if (!verifyEmail.trim()) {
+      setVerifyError("Please enter your email address");
+      return;
+    }
+    setVerifyLoading(true);
+    setVerifyError("");
+    try {
+      const res = await fetch(`/api/check-access?email=${encodeURIComponent(verifyEmail.trim())}`);
+      const data = await res.json();
+      if (data.has_access) {
+        setProStatus(verifyEmail.trim());
+        setPro(true);
+        setShowUpgrade(false);
+        setVerifyMode(false);
+      } else {
+        setVerifyError("No active subscription found for this email. Please complete your purchase first.");
+      }
+    } catch {
+      setVerifyError("Unable to verify access. Please try again.");
+    } finally {
+      setVerifyLoading(false);
+    }
+  }, [verifyEmail]);
 
   const handleDownloadPDF = useCallback(() => {
     if (!canGenerateLabels()) {
@@ -88,13 +124,15 @@ export default function LabelEditor() {
       return;
     }
 
-    const actualCount = Math.min(labelCount, remaining);
+    const actualCount = pro ? labelCount : Math.min(labelCount, remaining);
     const doc = generatePDF([labelData], actualCount, activeSpec);
     doc.save(`labels-${activeSpec.id}.pdf`);
 
-    incrementLabelsGenerated(actualCount);
-    setRemaining(getRemainingLabels());
-  }, [labelData, labelCount, remaining, activeSpec]);
+    if (!pro) {
+      incrementLabelsGenerated(actualCount);
+      setRemaining(getRemainingLabels());
+    }
+  }, [labelData, labelCount, remaining, activeSpec, pro]);
 
   const handleDownloadPNG = useCallback(() => {
     if (!canGenerateLabels()) {
@@ -121,14 +159,16 @@ export default function LabelEditor() {
       link.href = canvas.toDataURL("image/png");
       link.click();
 
-      const actualCount = Math.min(labelCount, remaining);
-      incrementLabelsGenerated(actualCount);
-      setRemaining(getRemainingLabels());
+      if (!pro) {
+        const actualCount = Math.min(labelCount, remaining);
+        incrementLabelsGenerated(actualCount);
+        setRemaining(getRemainingLabels());
+      }
     };
     img.src =
       "data:image/svg+xml;base64," +
       btoa(unescape(encodeURIComponent(svgData)));
-  }, [labelCount, remaining, activeSpec]);
+  }, [labelCount, remaining, activeSpec, pro]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -346,12 +386,18 @@ export default function LabelEditor() {
                 <h2 className="text-sm font-semibold text-gray-700">
                   Download
                 </h2>
-                <span className="text-xs text-gray-500">
-                  {remaining} free labels remaining
-                </span>
+                {pro ? (
+                  <span className="px-2 py-0.5 text-xs bg-amber-100 text-amber-700 rounded-full font-medium">
+                    PRO
+                  </span>
+                ) : (
+                  <span className="text-xs text-gray-500">
+                    {remaining} free labels remaining
+                  </span>
+                )}
               </div>
 
-              {remaining > 0 ? (
+              {pro || remaining > 0 ? (
                 <div className="space-y-2">
                   <button
                     onClick={handleDownloadPDF}
@@ -427,36 +473,94 @@ export default function LabelEditor() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                Upgrade to Pro
-              </h3>
-              <p className="text-sm text-gray-600 mb-6">
-                Unlock unlimited labels, all Avery sheet sizes (5163, 5164,
-                22805), jar/pantry templates, sticker templates, and more.
-              </p>
 
-              <div className="space-y-3 mb-6">
-                <a
-                  href={STRIPE_LINKS.monthly}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full px-4 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  $4.99/month
-                </a>
-                <a
-                  href={STRIPE_LINKS.yearly}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full px-4 py-3 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors"
-                >
-                  $34.99/year{" "}
-                  <span className="text-amber-200 text-xs">Save 42%</span>
-                </a>
-              </div>
+              {!verifyMode ? (
+                <>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    Upgrade to Pro
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-6">
+                    Unlock unlimited labels, all Avery sheet sizes (5163, 5164,
+                    22805), jar/pantry templates, sticker templates, CSV import,
+                    custom fonts, and more.
+                  </p>
+
+                  <div className="space-y-3 mb-4">
+                    <a
+                      href={STRIPE_LINKS.monthly}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full px-4 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      $3.99/month
+                    </a>
+                    <a
+                      href={STRIPE_LINKS.yearly}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full px-4 py-3 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors"
+                    >
+                      $29.99/year{" "}
+                      <span className="text-amber-200 text-xs">Save 37%</span>
+                    </a>
+                  </div>
+
+                  <button
+                    onClick={() => setVerifyMode(true)}
+                    className="text-sm text-blue-600 hover:text-blue-700 transition-colors mb-3 block mx-auto"
+                  >
+                    Already purchased? Verify access
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    Verify Your Access
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Enter the email you used during checkout to unlock Pro
+                    features.
+                  </p>
+
+                  <div className="space-y-3 mb-4">
+                    <input
+                      type="email"
+                      value={verifyEmail}
+                      onChange={(e) => setVerifyEmail(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleVerifyAccess()}
+                      placeholder="you@example.com"
+                      className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    {verifyError && (
+                      <p className="text-sm text-red-600">{verifyError}</p>
+                    )}
+                    <button
+                      onClick={handleVerifyAccess}
+                      disabled={verifyLoading}
+                      className="w-full px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {verifyLoading ? "Checking..." : "Verify Access"}
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setVerifyMode(false);
+                      setVerifyError("");
+                    }}
+                    className="text-sm text-blue-600 hover:text-blue-700 transition-colors mb-3 block mx-auto"
+                  >
+                    Back to upgrade options
+                  </button>
+                </>
+              )}
 
               <button
-                onClick={() => setShowUpgrade(false)}
+                onClick={() => {
+                  setShowUpgrade(false);
+                  setVerifyMode(false);
+                  setVerifyError("");
+                }}
                 className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
               >
                 Maybe later
