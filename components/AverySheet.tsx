@@ -1,21 +1,22 @@
 "use client";
 
-import { AVERY_5160, inchesToPixels } from "@/lib/avery";
+import { AverySpec, inchesToPixels, getLabelPosition } from "@/lib/avery";
 import { LabelData } from "@/lib/types";
 
 interface AverySheetProps {
   labels: LabelData[];
   labelCount: number;
+  spec: AverySpec;
 }
 
 const PREVIEW_DPI = 96;
 
-export default function AverySheet({ labels, labelCount }: AverySheetProps) {
-  const sheetW = inchesToPixels(AVERY_5160.sheetWidth, PREVIEW_DPI);
-  const sheetH = inchesToPixels(AVERY_5160.sheetHeight, PREVIEW_DPI);
-  const labelW = inchesToPixels(AVERY_5160.labelWidth, PREVIEW_DPI);
-  const labelH = inchesToPixels(AVERY_5160.labelHeight, PREVIEW_DPI);
-  const padding = inchesToPixels(AVERY_5160.labelPadding, PREVIEW_DPI);
+export default function AverySheet({ labels, labelCount, spec }: AverySheetProps) {
+  const sheetW = inchesToPixels(spec.sheetWidth, PREVIEW_DPI);
+  const sheetH = inchesToPixels(spec.sheetHeight, PREVIEW_DPI);
+  const labelW = inchesToPixels(spec.labelWidth, PREVIEW_DPI);
+  const labelH = inchesToPixels(spec.labelHeight, PREVIEW_DPI);
+  const padding = inchesToPixels(spec.labelPadding, PREVIEW_DPI);
 
   return (
     <div className="overflow-auto border border-gray-300 rounded-lg bg-white shadow-sm">
@@ -28,22 +29,18 @@ export default function AverySheet({ labels, labelCount }: AverySheetProps) {
         <rect width={sheetW} height={sheetH} fill="white" />
 
         {/* Render labels */}
-        {Array.from({ length: Math.min(labelCount, AVERY_5160.labelsPerSheet) }).map(
+        {Array.from({ length: Math.min(labelCount, spec.labelsPerSheet) }).map(
           (_, i) => {
             const labelData = labels[i % labels.length];
-            const col = i % AVERY_5160.columns;
-            const row = Math.floor(i / AVERY_5160.columns);
-            const x =
-              inchesToPixels(AVERY_5160.sideMargin, PREVIEW_DPI) +
-              col * inchesToPixels(AVERY_5160.labelWidth + AVERY_5160.horizontalGap, PREVIEW_DPI);
-            const y =
-              inchesToPixels(AVERY_5160.topMargin, PREVIEW_DPI) +
-              row * inchesToPixels(AVERY_5160.labelHeight + AVERY_5160.verticalGap, PREVIEW_DPI);
+            const pos = getLabelPosition(i, spec);
+            const x = inchesToPixels(pos.x, PREVIEW_DPI);
+            const y = inchesToPixels(pos.y, PREVIEW_DPI);
 
             const lineHeight = labelData.fontSize * 1.3 * (PREVIEW_DPI / 72);
             const visibleLines = labelData.lines.filter((l) => l.trim());
             const totalTextHeight = visibleLines.length * lineHeight;
-            const startY = y + (labelH - totalTextHeight) / 2 + labelData.fontSize * (PREVIEW_DPI / 72);
+            const startY =
+              y + (labelH - totalTextHeight) / 2 + labelData.fontSize * (PREVIEW_DPI / 72);
 
             let textAnchor: "start" | "middle" | "end" = "start";
             let textX = x + padding;

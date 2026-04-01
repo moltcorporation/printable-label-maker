@@ -1,12 +1,12 @@
 import jsPDF from "jspdf";
-import { AVERY_5160, inchesToPoints, getLabelPosition } from "./avery";
+import { AverySpec, inchesToPoints, getLabelPosition } from "./avery";
 import { LabelData } from "./types";
 
 // Map CSS font families to jsPDF font names
 function getJsPDFFont(fontFamily: string): string {
   if (fontFamily.includes("Times")) return "times";
   if (fontFamily.includes("Courier")) return "courier";
-  return "helvetica"; // Arial maps to helvetica in jsPDF
+  return "helvetica"; // Arial/Verdana/Georgia all map to helvetica in jsPDF
 }
 
 function getJsPDFAlign(align: string): "left" | "center" | "right" {
@@ -14,20 +14,24 @@ function getJsPDFAlign(align: string): "left" | "center" | "right" {
   return "left";
 }
 
-export function generatePDF(labels: LabelData[], count: number): jsPDF {
+export function generatePDF(
+  labels: LabelData[],
+  count: number,
+  spec: AverySpec
+): jsPDF {
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "pt",
     format: "letter",
   });
 
-  const padding = inchesToPoints(AVERY_5160.labelPadding);
-  const labelW = inchesToPoints(AVERY_5160.labelWidth);
-  const labelH = inchesToPoints(AVERY_5160.labelHeight);
+  const padding = inchesToPoints(spec.labelPadding);
+  const labelW = inchesToPoints(spec.labelWidth);
+  const labelH = inchesToPoints(spec.labelHeight);
 
-  for (let i = 0; i < count && i < AVERY_5160.labelsPerSheet; i++) {
+  for (let i = 0; i < count && i < spec.labelsPerSheet; i++) {
     const labelData = labels[i % labels.length];
-    const pos = getLabelPosition(i);
+    const pos = getLabelPosition(i, spec);
     const x = inchesToPoints(pos.x);
     const y = inchesToPoints(pos.y);
 
@@ -48,17 +52,16 @@ export function generatePDF(labels: LabelData[], count: number): jsPDF {
 
     // Render each line
     const lineHeight = labelData.fontSize * 1.3;
-    const totalTextHeight = labelData.lines.filter((l) => l.trim()).length * lineHeight;
+    const visibleLines = labelData.lines.filter((l) => l.trim());
+    const totalTextHeight = visibleLines.length * lineHeight;
     const startY = y + (labelH - totalTextHeight) / 2 + labelData.fontSize;
 
-    labelData.lines
-      .filter((line) => line.trim())
-      .forEach((line, lineIndex) => {
-        const lineY = startY + lineIndex * lineHeight;
-        if (lineY < y + labelH - padding) {
-          doc.text(line, textX, lineY, { align });
-        }
-      });
+    visibleLines.forEach((line, lineIndex) => {
+      const lineY = startY + lineIndex * lineHeight;
+      if (lineY < y + labelH - padding) {
+        doc.text(line, textX, lineY, { align });
+      }
+    });
   }
 
   return doc;
