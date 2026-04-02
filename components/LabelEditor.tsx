@@ -181,46 +181,67 @@ export default function LabelEditor() {
   }, [labelCount, remaining, activeSpec, pro]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-4">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Printable Label Maker
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Create and print custom labels for Avery sheets — address, shipping,
-            jar, and sticker labels
-          </p>
+    <div className="min-h-screen" style={{ backgroundColor: "#faf8f6" }}>
+      {/* Hero Header */}
+      <header className="border-b" style={{ backgroundColor: "#f5ede5", borderColor: "#e8ddd3" }}>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="mb-6">
+            <h1 className="text-4xl font-bold mb-2" style={{ color: "#3d3935", fontFamily: "'Poppins', sans-serif", fontWeight: 700 }}>
+              Printable Label Maker
+            </h1>
+            <p className="text-lg" style={{ color: "#6b8e7f" }}>
+              Design & print custom labels for Avery sheets. Perfect for home organizers, small businesses & crafters.
+            </p>
+          </div>
+
+          {/* Mini Hero Preview */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="rounded-lg p-3 text-center transition-transform hover:scale-105" style={{ backgroundColor: "white", border: "2px solid #d97562" }}>
+              <span style={{ fontSize: "24px" }}>🏷️</span>
+              <p className="text-xs font-medium mt-1" style={{ color: "#3d3935" }}>Address Labels</p>
+            </div>
+            <div className="rounded-lg p-3 text-center transition-transform hover:scale-105" style={{ backgroundColor: "white", border: "2px solid #6b8e7f" }}>
+              <span style={{ fontSize: "24px" }}>📦</span>
+              <p className="text-xs font-medium mt-1" style={{ color: "#3d3935" }}>Shipping Labels</p>
+            </div>
+            <div className="rounded-lg p-3 text-center transition-transform hover:scale-105" style={{ backgroundColor: "white", border: "2px solid #c4a747" }}>
+              <span style={{ fontSize: "24px" }}>🏺</span>
+              <p className="text-xs font-medium mt-1" style={{ color: "#3d3935" }}>Jar Labels</p>
+            </div>
+            <div className="rounded-lg p-3 text-center transition-transform hover:scale-105" style={{ backgroundColor: "white", border: "2px solid #8b7355" }}>
+              <span style={{ fontSize: "24px" }}>✨</span>
+              <p className="text-xs font-medium mt-1" style={{ color: "#3d3935" }}>Sticker Labels</p>
+            </div>
+          </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: Editor Controls */}
           <div className="lg:col-span-1 space-y-4">
-            {/* Avery Sheet Selector */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h2 className="text-sm font-semibold text-gray-700 mb-3">
+            {/* Avery Sheet Selector - Visual */}
+            <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "2px solid #e8ddd3" }}>
+              <h2 className="text-base font-semibold mb-4" style={{ color: "#3d3935", fontFamily: "'Poppins', sans-serif" }}>
                 Sheet Size
               </h2>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 {ALL_AVERY_SPECS.map((spec) => (
                   <button
                     key={spec.id}
                     onClick={() => selectSheet(spec)}
-                    className={`w-full text-left px-3 py-2 text-sm rounded-md border transition-colors ${
-                      activeSpec.id === spec.id
-                        ? "bg-blue-50 border-blue-300 text-blue-700"
-                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                    }`}
+                    className="relative p-3 rounded-lg font-medium transition-all text-sm"
+                    style={{
+                      backgroundColor: activeSpec.id === spec.id ? "#f5ede5" : "transparent",
+                      border: `2px solid ${activeSpec.id === spec.id ? "#d97562" : "#e8ddd3"}`,
+                      color: activeSpec.id === spec.id ? "#d97562" : "#6b8e7f",
+                      transform: activeSpec.id === spec.id ? "scale(1.05)" : "scale(1)",
+                    }}
                   >
-                    <span className="font-medium">{spec.name}</span>
-                    <span className="text-xs text-gray-400 ml-2">
-                      {spec.description}
-                    </span>
+                    <span className="block">{spec.name}</span>
+                    <span className="text-xs opacity-70">{spec.labelsPerSheet}pcs</span>
                     {spec.pro && (
-                      <span className="ml-2 px-1.5 py-0.5 text-xs bg-amber-100 text-amber-700 rounded font-medium">
+                      <span className="absolute top-1 right-1 text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "#c4a747", color: "white" }}>
                         PRO
                       </span>
                     )}
@@ -230,8 +251,8 @@ export default function LabelEditor() {
             </div>
 
             {/* Templates */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h2 className="text-sm font-semibold text-gray-700 mb-3">
+            <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "2px solid #e8ddd3" }}>
+              <h2 className="text-base font-semibold mb-4" style={{ color: "#3d3935", fontFamily: "'Poppins', sans-serif" }}>
                 Template
               </h2>
               <div className="flex flex-wrap gap-2">
@@ -239,24 +260,22 @@ export default function LabelEditor() {
                   <button
                     key={t.id}
                     onClick={() => applyTemplate(t)}
-                    className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
-                      activeTemplate === t.id
-                        ? "bg-blue-50 border-blue-300 text-blue-700"
-                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                    }`}
+                    className="px-4 py-2 text-sm rounded-lg font-medium transition-all"
+                    style={{
+                      backgroundColor: activeTemplate === t.id ? "#d97562" : "transparent",
+                      border: `2px solid ${activeTemplate === t.id ? "#d97562" : "#e8ddd3"}`,
+                      color: activeTemplate === t.id ? "white" : "#6b8e7f",
+                    }}
                   >
-                    {t.name}
-                    {t.pro && (
-                      <span className="ml-1 text-xs text-amber-600">PRO</span>
-                    )}
+                    {t.name} {t.pro && "◆"}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Text Lines */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h2 className="text-sm font-semibold text-gray-700 mb-3">
+            <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "2px solid #e8ddd3" }}>
+              <h2 className="text-base font-semibold mb-4" style={{ color: "#3d3935", fontFamily: "'Poppins', sans-serif" }}>
                 Label Text
               </h2>
               <div className="space-y-2">
@@ -267,15 +286,24 @@ export default function LabelEditor() {
                       value={line}
                       onChange={(e) => updateLine(i, e.target.value)}
                       placeholder={`Line ${i + 1}`}
-                      className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="flex-1 px-3 py-2 text-sm rounded-lg transition-all"
+                      style={{
+                        backgroundColor: "#faf8f6",
+                        border: "2px solid #e8ddd3",
+                        color: "#3d3935",
+                        outlineColor: "#d97562",
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = "#d97562"}
+                      onBlur={(e) => e.target.style.borderColor = "#e8ddd3"}
                     />
                     {lines.length > 1 && (
                       <button
                         onClick={() => removeLine(i)}
-                        className="px-2 text-gray-400 hover:text-red-500 transition-colors"
+                        className="px-2 transition-colors"
+                        style={{ color: "#d97562" }}
                         title="Remove line"
                       >
-                        &times;
+                        ✕
                       </button>
                     )}
                   </div>
@@ -283,7 +311,8 @@ export default function LabelEditor() {
                 {lines.length < 6 && (
                   <button
                     onClick={addLine}
-                    className="text-sm text-blue-600 hover:text-blue-700"
+                    className="text-sm font-medium mt-2 transition-colors"
+                    style={{ color: "#d97562" }}
                   >
                     + Add line
                   </button>
@@ -292,20 +321,20 @@ export default function LabelEditor() {
             </div>
 
             {/* Style Controls */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h2 className="text-sm font-semibold text-gray-700 mb-3">
+            <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "2px solid #e8ddd3" }}>
+              <h2 className="text-base font-semibold mb-4" style={{ color: "#3d3935", fontFamily: "'Poppins', sans-serif" }}>
                 Style
               </h2>
-              <div className="space-y-3">
-                {/* Font */}
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">
+                  <label className="block text-sm font-medium mb-2" style={{ color: "#6b8e7f" }}>
                     Font
                   </label>
                   <select
                     value={fontFamily}
                     onChange={(e) => setFontFamily(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm rounded-lg"
+                    style={{ backgroundColor: "#faf8f6", border: "2px solid #e8ddd3", color: "#3d3935" }}
                   >
                     {FONTS.map((f) => (
                       <option key={f.name} value={f.value}>
@@ -315,9 +344,8 @@ export default function LabelEditor() {
                   </select>
                 </div>
 
-                {/* Font Size */}
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">
+                  <label className="block text-sm font-medium mb-2" style={{ color: "#6b8e7f" }}>
                     Size: {fontSize}pt
                   </label>
                   <input
@@ -327,12 +355,12 @@ export default function LabelEditor() {
                     value={fontSize}
                     onChange={(e) => setFontSize(Number(e.target.value))}
                     className="w-full"
+                    style={{ accentColor: "#d97562" }}
                   />
                 </div>
 
-                {/* Color */}
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">
+                  <label className="block text-sm font-medium mb-2" style={{ color: "#6b8e7f" }}>
                     Color
                   </label>
                   <div className="flex items-center gap-2">
@@ -340,27 +368,28 @@ export default function LabelEditor() {
                       type="color"
                       value={textColor}
                       onChange={(e) => setTextColor(e.target.value)}
-                      className="w-8 h-8 border border-gray-200 rounded cursor-pointer"
+                      className="w-10 h-10 rounded-lg cursor-pointer"
+                      style={{ border: "2px solid #e8ddd3" }}
                     />
-                    <span className="text-sm text-gray-600">{textColor}</span>
+                    <span className="text-sm" style={{ color: "#3d3935" }}>{textColor}</span>
                   </div>
                 </div>
 
-                {/* Alignment */}
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">
+                  <label className="block text-sm font-medium mb-2" style={{ color: "#6b8e7f" }}>
                     Alignment
                   </label>
-                  <div className="flex gap-1">
+                  <div className="flex gap-2">
                     {(["left", "center", "right"] as const).map((align) => (
                       <button
                         key={align}
                         onClick={() => setTextAlign(align)}
-                        className={`flex-1 px-3 py-1.5 text-sm rounded-md border transition-colors ${
-                          textAlign === align
-                            ? "bg-blue-50 border-blue-300 text-blue-700"
-                            : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                        }`}
+                        className="flex-1 px-3 py-2 text-sm font-medium rounded-lg transition-all"
+                        style={{
+                          backgroundColor: textAlign === align ? "#d97562" : "transparent",
+                          border: `2px solid ${textAlign === align ? "#d97562" : "#e8ddd3"}`,
+                          color: textAlign === align ? "white" : "#6b8e7f",
+                        }}
                       >
                         {align.charAt(0).toUpperCase() + align.slice(1)}
                       </button>
@@ -371,38 +400,37 @@ export default function LabelEditor() {
             </div>
 
             {/* Label Count */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h2 className="text-sm font-semibold text-gray-700 mb-3">
+            <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "2px solid #e8ddd3" }}>
+              <h2 className="text-base font-semibold mb-4" style={{ color: "#3d3935", fontFamily: "'Poppins', sans-serif" }}>
                 Quantity
               </h2>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">
-                  Labels per sheet: {labelCount}
-                </label>
-                <input
-                  type="range"
-                  min={1}
-                  max={activeSpec.labelsPerSheet}
-                  value={labelCount}
-                  onChange={(e) => setLabelCount(Number(e.target.value))}
-                  className="w-full"
-                />
-              </div>
+              <label className="block text-sm font-medium mb-2" style={{ color: "#6b8e7f" }}>
+                Labels per sheet: {labelCount}
+              </label>
+              <input
+                type="range"
+                min={1}
+                max={activeSpec.labelsPerSheet}
+                value={labelCount}
+                onChange={(e) => setLabelCount(Number(e.target.value))}
+                className="w-full"
+                style={{ accentColor: "#d97562" }}
+              />
             </div>
 
             {/* Download Actions */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-gray-700">
+            <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "2px solid #e8ddd3" }}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base font-semibold" style={{ color: "#3d3935", fontFamily: "'Poppins', sans-serif" }}>
                   Download
                 </h2>
                 {pro ? (
-                  <span className="px-2 py-0.5 text-xs bg-amber-100 text-amber-700 rounded-full font-medium">
+                  <span className="text-xs px-3 py-1 rounded-full font-medium" style={{ backgroundColor: "#c4a747", color: "white" }}>
                     PRO
                   </span>
                 ) : (
-                  <span className="text-xs text-gray-500">
-                    {remaining} free labels remaining
+                  <span className="text-xs font-medium" style={{ color: "#6b8e7f" }}>
+                    {remaining} free
                   </span>
                 )}
               </div>
@@ -411,27 +439,30 @@ export default function LabelEditor() {
                 <div className="space-y-2">
                   <button
                     onClick={handleDownloadPDF}
-                    className="w-full px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                    className="w-full px-4 py-3 text-white text-sm font-medium rounded-lg transition-all hover:shadow-lg"
+                    style={{ backgroundColor: "#d97562" }}
                   >
-                    Download PDF
+                    📥 Download PDF
                   </button>
                   <button
                     onClick={handleDownloadPNG}
-                    className="w-full px-4 py-2.5 bg-white text-gray-700 text-sm font-medium rounded-md border border-gray-200 hover:bg-gray-50 transition-colors"
+                    className="w-full px-4 py-3 text-sm font-medium rounded-lg transition-all border-2"
+                    style={{ backgroundColor: "#f5ede5", border: "2px solid #d97562", color: "#d97562" }}
                   >
-                    Download PNG
+                    📸 Download PNG
                   </button>
                 </div>
               ) : (
-                <div className="text-center py-3">
-                  <p className="text-sm text-gray-600 mb-3">
-                    Free limit reached ({FREE_TIER_LIMIT} labels)
+                <div className="text-center">
+                  <p className="text-sm font-medium mb-3" style={{ color: "#6b8e7f" }}>
+                    Free limit reached
                   </p>
                   <button
                     onClick={() => setShowUpgrade(true)}
-                    className="w-full px-4 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-md hover:bg-amber-600 transition-colors"
+                    className="w-full px-4 py-3 text-white text-sm font-medium rounded-lg transition-all hover:shadow-lg"
+                    style={{ backgroundColor: "#c4a747" }}
                   >
-                    Upgrade to Pro — Unlimited Labels
+                    ✨ Upgrade to Pro
                   </button>
                 </div>
               )}
@@ -440,18 +471,16 @@ export default function LabelEditor() {
 
           {/* Right: Sheet Preview */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-semibold text-gray-700">
-                  Sheet Preview — {activeSpec.name}
+            <div className="rounded-xl p-5 sticky top-4" style={{ backgroundColor: "white", border: "2px solid #e8ddd3" }}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base font-semibold" style={{ color: "#3d3935", fontFamily: "'Poppins', sans-serif" }}>
+                  Live Preview
                 </h2>
-                <span className="text-xs text-gray-400">
-                  {activeSpec.columns}&times;{activeSpec.rows} &bull;{" "}
-                  {activeSpec.labelWidth}&quot;&times;{activeSpec.labelHeight}
-                  &quot; labels &bull; US Letter
+                <span className="text-xs font-medium" style={{ color: "#6b8e7f" }}>
+                  {activeSpec.columns}×{activeSpec.rows}
                 </span>
               </div>
-              <div className="avery-sheet-container">
+              <div className="avery-sheet-container rounded-lg overflow-hidden" style={{ border: "1px solid #e8ddd3" }}>
                 <AverySheet
                   labels={[labelData]}
                   labelCount={labelCount}
@@ -463,44 +492,31 @@ export default function LabelEditor() {
         </div>
       </div>
 
-      {/* Upgrade Modal */}
+      {/* Upgrade Modal - Premium Design */}
       {showUpgrade && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="rounded-2xl shadow-2xl max-w-md w-full p-8 animate-in" style={{ backgroundColor: "#f5ede5" }}>
             <div className="text-center">
-              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-6 h-6 text-amber-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 3l14 9-14 9V3z"
-                  />
-                </svg>
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: "#d97562" }}>
+                <span style={{ fontSize: "32px" }}>✨</span>
               </div>
 
               {!verifyMode ? (
                 <>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  <h3 className="text-2xl font-bold mb-3" style={{ color: "#3d3935", fontFamily: "'Poppins', sans-serif" }}>
                     Upgrade to Pro
                   </h3>
-                  <p className="text-sm text-gray-600 mb-6">
-                    Unlock unlimited labels, all Avery sheet sizes (5163, 5164,
-                    22805), jar/pantry templates, sticker templates, CSV import,
-                    custom fonts, and more.
+                  <p className="text-sm mb-6" style={{ color: "#6b8e7f" }}>
+                    Unlock unlimited labels, all Avery sizes, templates, and premium features for your label creation.
                   </p>
 
-                  <div className="space-y-3 mb-4">
+                  <div className="space-y-2 mb-6">
                     <a
                       href={STRIPE_LINKS.monthly}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block w-full px-4 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                      className="block w-full px-4 py-3 text-white text-sm font-medium rounded-lg transition-all hover:shadow-lg"
+                      style={{ backgroundColor: "#d97562" }}
                     >
                       $3.99/month
                     </a>
@@ -508,46 +524,48 @@ export default function LabelEditor() {
                       href={STRIPE_LINKS.yearly}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block w-full px-4 py-3 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors"
+                      className="block w-full px-4 py-3 text-white text-sm font-medium rounded-lg transition-all hover:shadow-lg"
+                      style={{ backgroundColor: "#c4a747" }}
                     >
-                      $29.99/year{" "}
-                      <span className="text-amber-200 text-xs">Save 37%</span>
+                      $29.99/year — Save 37% ✓
                     </a>
                   </div>
 
                   <button
                     onClick={() => setVerifyMode(true)}
-                    className="text-sm text-blue-600 hover:text-blue-700 transition-colors mb-3 block mx-auto"
+                    className="text-sm font-medium mb-3 block mx-auto"
+                    style={{ color: "#d97562" }}
                   >
                     Already purchased? Verify access
                   </button>
                 </>
               ) : (
                 <>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    Verify Your Access
+                  <h3 className="text-2xl font-bold mb-3" style={{ color: "#3d3935", fontFamily: "'Poppins', sans-serif" }}>
+                    Verify Access
                   </h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Enter the email you used during checkout to unlock Pro
-                    features.
+                  <p className="text-sm mb-4" style={{ color: "#6b8e7f" }}>
+                    Enter your checkout email to unlock Pro features.
                   </p>
 
-                  <div className="space-y-3 mb-4">
+                  <div className="space-y-3 mb-6">
                     <input
                       type="email"
                       value={verifyEmail}
                       onChange={(e) => setVerifyEmail(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleVerifyAccess()}
                       placeholder="you@example.com"
-                      className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 text-sm rounded-lg"
+                      style={{ backgroundColor: "white", border: "2px solid #e8ddd3", color: "#3d3935" }}
                     />
                     {verifyError && (
-                      <p className="text-sm text-red-600">{verifyError}</p>
+                      <p className="text-sm font-medium" style={{ color: "#d97562" }}>{verifyError}</p>
                     )}
                     <button
                       onClick={handleVerifyAccess}
                       disabled={verifyLoading}
-                      className="w-full px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 text-white text-sm font-medium rounded-lg transition-all"
+                      style={{ backgroundColor: "#d97562", opacity: verifyLoading ? 0.7 : 1 }}
                     >
                       {verifyLoading ? "Checking..." : "Verify Access"}
                     </button>
@@ -558,9 +576,10 @@ export default function LabelEditor() {
                       setVerifyMode(false);
                       setVerifyError("");
                     }}
-                    className="text-sm text-blue-600 hover:text-blue-700 transition-colors mb-3 block mx-auto"
+                    className="text-sm font-medium block mx-auto"
+                    style={{ color: "#d97562" }}
                   >
-                    Back to upgrade options
+                    Back to options
                   </button>
                 </>
               )}
@@ -571,7 +590,8 @@ export default function LabelEditor() {
                   setVerifyMode(false);
                   setVerifyError("");
                 }}
-                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                className="text-sm font-medium mt-4"
+                style={{ color: "#6b8e7f" }}
               >
                 Maybe later
               </button>
@@ -581,15 +601,13 @@ export default function LabelEditor() {
       )}
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 px-4 py-6 mt-12">
-        <div className="max-w-7xl mx-auto text-center text-sm text-gray-500">
-          <p>
-            Printable Label Maker &mdash; Create custom Avery labels for free.
-            Address labels, shipping labels, jar labels, and sticker labels.
+      <footer className="mt-16 border-t py-8 px-4" style={{ backgroundColor: "#f5ede5", borderColor: "#e8ddd3" }}>
+        <div className="max-w-7xl mx-auto text-center text-sm" style={{ color: "#6b8e7f" }}>
+          <p className="font-medium mb-2">
+            Printable Label Maker — Create beautiful custom labels for every occasion
           </p>
-          <p className="mt-1">
-            Supports Avery 5160, 5163, 5164, and 22805 sheets. Download as
-            print-ready PDF.
+          <p>
+            Free & unlimited Pro options for address, shipping, jar, and sticker labels
           </p>
         </div>
       </footer>
